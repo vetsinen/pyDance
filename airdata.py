@@ -16,21 +16,40 @@ if __name__ == '__main__':
     weekday = datetime.datetime.today().weekday()
     filter = f'w2>={weekday}'
 
-    # events_repository.fetch_and_cache_data()
-    events = events_repository.take_events_from_cache()
+    # events_repository.fetch_and_cache_data(filter)
+    raw_events = events_repository.take_events_from_cache()
+
+    # raw_events = events_repository.fetch(filter)
 
     # events['records'][]['fields'].keys()
     # odict_keys(['startDate', 'startTime', 'priority', 'description', 'link', 'title', 'Стили танца?', 'Attachments', 'price'])
+    # for item in raw_events:
+    #     print(item['fields']['title'])
+    # print(item['fields'].keys())
+
 
     announces = ''
+    events = []
+    for item in raw_events:
+            if 'draft' not in item['fields']:
+                events.append({
+                    "title": item['fields']['title'],
+                    "description": item['fields']['description'] if 'description' in item['fields'] else 'опис недоступний',
+                    "balance" : item['fields']['balance'],
+                    "startTime" : item['fields']['startTime'],
+                    "weekday": item['fields']['weekday'],
+                    "w2" : item['fields']['w2'],
+                    "price": item['fields']['price'],
+                    "link" : item['fields']['link'] if "link" in item['fields'] else None,
+                    "address" : item['fields']['address']
+                })
 
     for item in events:
-        # print(item['fields'].keys())
-        print(item['fields']['title'], item['fields']['weekday'])
-        title = item['fields']['title']
-        description = item['fields']['description'] if 'description' in item['fields'] else 'немає повного опису'
-        announces+= f'<b>{title}</b>\n {description}\n'
+        print(item['title'])
 
+        announces+= f'{item["weekday"]} <b>{item["title"]} початок: {item["startTime"]}</b> \n {item["description"]} '
+        if item['link']:
+            announces+=f'<a href="{item["link"]}">link</a>'
+        announces+='\n----------\n'
 
-    print(announces)
-    send_announce(announces)
+    # send_announce(announces)
