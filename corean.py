@@ -1,3 +1,6 @@
+import datetime
+from init_bot import bot
+
 from airtable import airtable
 import pickle
 events_file = 'events.pickle'
@@ -44,19 +47,29 @@ def fetch(filter="w2>=0"):
     raw_events =  at.get('events',filter_by_formula=filter)['records']
     return get_plain_events(raw_events)
 
-def fetch_and_cache_data(filter="w2>=0"):
-    at = airtable.Airtable('appW2upPBNl804iB1', 'keyqdwnX6NQUAqMyE')
-    events = at.get('events', filter_by_formula=filter)
+def send_announce(announces='Hi'):
+     # You can set parse_mode by default. HTML or MARKDOWN
+    wild_dances_channel_id = -1001866935354
+    social_dances_id = -1001287171602
+    bot.send_message(wild_dances_channel_id, text=announces, parse_mode='HTML')
 
-    file = open(events_file, 'wb')
-    pickle.dump(events, file)
-    file.close()
+def render_events_to_tg_markup(events)->str:
+    announces = ''
+    for item in events:
+        print(item['title'])
 
-def take_events_from_cache():
-    file = open(events_file, 'rb')
-    events = pickle.load(file)['records']
-    file.close()
-    return events
+        announces += f'<em>{item["weekday"]}</em>, 💃{item["title"]}🕺, початок⏰ {item["startTime"]}, баланс🎸: <b>{item["balance"]}</b>, \n📍адреса {item["address"]}\n' \
+                     f' {item["brief"]}\n вартість💰: <b>{item["price"]}</b>, '
+        if item['link']:
+            announces += f'👉<a href="{item["link"]}">link</a>'
+        announces += '\n----------\n'
+    announces+= '\n якщо якоїсь вечірки немає в списку, ви можете самостійно додати її до бази, ' \
+                'після модерації вона з"явиться' \
+                ' в загальному списку 👉<a href="https://airtable.com/shrMtHafY9TwmoTdZ">додати вечірку</a>'
+    return announces
 
 if __name__ == '__main__':
-    pass
+    weekday = datetime.datetime.today().weekday()
+    events = fetch(f'w2>={weekday}')
+    send_announce(render_events_to_tg_markup(events))
+
