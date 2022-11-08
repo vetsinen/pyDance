@@ -51,7 +51,7 @@ def send_announce(announces='Hi'):
      # You can set parse_mode by default. HTML or MARKDOWN
     wild_dances_channel_id = -1001866935354
     social_dances_id = -1001287171602
-    bot.send_message(wild_dances_channel_id, text=announces, parse_mode='HTML')
+    bot.send_message(social_dances_id, text=announces, parse_mode='HTML')
 
 def render_events_to_tg_markup(events)->str:
     announces = ''
@@ -63,7 +63,8 @@ def render_events_to_tg_markup(events)->str:
         if item['link']:
             announces += f'👉<a href="{item["link"]}">link</a>'
         announces += '\n----------\n'
-    announces+= '\n якщо якоїсь вечірки немає в списку, ви можете самостійно додати її до бази, ' \
+    announces+= '\n детальніша інформація про вечірки є на сайті https://opendance.life/' \
+                '\n якщо якоїсь вечірки немає в списку, ви можете самостійно додати її до бази, ' \
                 'після модерації вона з"явиться' \
                 ' в загальному списку 👉<a href="https://airtable.com/shrMtHafY9TwmoTdZ">додати вечірку</a>'
     return announces
